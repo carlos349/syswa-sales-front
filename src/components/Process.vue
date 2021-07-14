@@ -35,7 +35,8 @@
                         <input readonly class="ant-input w-100" placeholder="Telefono" v-model="registerClient.phone.formatInternational"/>
                     </div>
                 </div>
-                <div class="card-container">
+                <a-date-picker class="ubicateDate"  @change="selectDate" :default-value="moment(new Date(), dateFormat)" :format="dateFormat" />
+                <div class="card-container" style="margin-top:-30px;">
                     <a-tabs type="card">
                         <a-tab-pane key="1">
                             <span slot="tab">
@@ -438,7 +439,7 @@
 </template>
 <script>
 import axios from 'axios'
-import router from '../router'
+import moment from 'moment'
 import endPoint from '../../config-endpoint/endpoint.js'
 import jwtDecode from 'jwt-decode'
 import io from 'socket.io-client';
@@ -458,9 +459,11 @@ export default {
         return {
             socket: io(endPoint.endpointTarget),
             auth: [],
+            dateToday: new Date(),
             validator:true,
             validatorBtn:true,
             spinning:false,
+            moment: moment,
             modals: {
                 modal1: false,
                 modal2: false,
@@ -523,6 +526,7 @@ export default {
                 cashAmount: 0,
                 valid: false,
             },
+            dateFormat: 'DD/MM/YYYY',
             registerService: {
                 serviceRegister: '',
                 comissionRegister: '',
@@ -1100,7 +1104,7 @@ export default {
                         typesPay: this.paysSelecteds,
                         client: this.registerClient,
                         clientId: this.editClientId,
-                        date: new Date(),
+                        date: this.dateToday,
                         restPay: this.restPay
                     }, this.configHeader)
                     if (proccesSale.data.status == 'ok') {
@@ -1245,6 +1249,13 @@ export default {
                     })
                 }
             })
+        },
+        selectDate(date, dateString){
+            if (date) {
+                this.dateToday = date._d     
+            }else{
+                this.dateToday = new Date()
+            }
         },
         verifyCode(){
             this.$swal({
@@ -1483,5 +1494,12 @@ export default {
 }
 .ant-select-selection{
     border: 1px solid #d9d9d9;
+}
+.ubicateDate{
+    position: fixed;
+    top: 0%;
+    left: 390px;
+    z-index: 100;
+    width: 48%;
 }
 </style>
