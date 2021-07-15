@@ -1084,13 +1084,44 @@ export default {
                 try {
                     const product = await axios.get(`${endPoint.endpointTarget}/products/${value}`, this.configHeader)
                     console.log(product)
-                    product.data.data.name =  product.data.data.product
-                    this.itemData.item = product.data.data
-                    this.itemData.price = product.data.data.price
-                    this.itemData.realPrice = product.data.data.price
-                    this.itemData.discountServiceIf = false
-                    this.itemData.commission = 0
-                    this.itemData.tag = 'product'
+                    if (product.data.data.quantity <= 0) {
+                        this.$swal({
+                            title: 'El producto está agotado',
+                            html: '<p style="font-size:1.4em;">¿Deseas hacer la venta?</p><p style="font-size:0.8em;">su inventario quedará en negativo</p>',
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonText: 'Sí',
+                            cancelButtonText: 'No, cancelar',
+                            showCloseButton: true,
+                            showLoaderOnConfirm: true
+                        }).then((result) => {
+                            if (result.value) {
+                                product.data.data.name =  product.data.data.product
+                                this.itemData.item = product.data.data
+                                this.itemData.price = product.data.data.price
+                                this.itemData.realPrice = product.data.data.price
+                                this.itemData.discountServiceIf = false
+                                this.itemData.commission = 0
+                                this.itemData.tag = 'product'
+                            }else{
+                                this.$swal({
+                                    icon: 'info',
+                                    title: 'No se selecciono el producto',
+                                    showConfirmButton: false,
+                                    timer: 1000
+                                })
+                                $('.thisSelect .ant-select-selection__clear').click()
+                            }
+                        })
+                    }else{
+                        product.data.data.name =  product.data.data.product
+                        this.itemData.item = product.data.data
+                        this.itemData.price = product.data.data.price
+                        this.itemData.realPrice = product.data.data.price
+                        this.itemData.discountServiceIf = false
+                        this.itemData.commission = 0
+                        this.itemData.tag = 'product'
+                    }
                 }catch(err){
                     console.log(err)
                 }
