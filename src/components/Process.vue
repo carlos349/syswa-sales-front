@@ -69,6 +69,7 @@
                                     <label for="Client" style="margin-bottom:12px">Precio</label>
                                     <currency-input
                                         v-model="itemData.price"
+                                        @keyup="changeRealPrice"
                                         locale="de"
                                         :disabled="readyClient"
                                         class="ant-input w-100 mb-3"
@@ -946,6 +947,7 @@ export default {
             }
         },
         calculatedTotal(){
+            console.log("calculatedTotal")
             var total = 0
             for (const items of this.serviceSelecteds) {
                 total = total + items.total
@@ -1022,6 +1024,7 @@ export default {
             this.calculatedTotal()
         },
         addDiscountFunc(){
+            console.log("addDiscountFunc")
             var discount = this.itemData.discountService < 10 ? '0'+this.itemData.discountService : this.itemData.discountService
             if (this.itemData.discountService != '') {
                 this.itemData.price = this.itemData.realPrice - (this.itemData.realPrice * parseFloat('0.'+discount))
@@ -1030,6 +1033,7 @@ export default {
             }
         },
         addDiscountFuncProduct(){
+            
             var quantity = this.itemData.quantityProduct == 0 || this.itemData.quantityProduct == '' ? 1 : this.itemData.quantityProduct
             var discount = this.itemData.discountService < 10 ? '0'+this.itemData.discountService : this.itemData.discountService
             if (this.itemData.discountService != '') {
@@ -1039,6 +1043,7 @@ export default {
             }
         },
         calculatedQuantity(){
+            console.log("run this")
             if (this.itemData.quantityProduct != '') {
                 if (this.itemData.quantityProduct == 0) {
                     this.itemData.price = this.itemData.realPrice
@@ -1049,7 +1054,12 @@ export default {
                 this.itemData.price = this.itemData.realPrice
             }
         },
+        changeRealPrice(){
+            this.itemData.quantityProduct = ''
+            this.itemData.realPrice = this.itemData.price
+        },
         addDiscountTable(record, key){
+            console.log("addDiscountTable")
             var discount = record < 10 ? '0'+record : record
             if (this.serviceSelecteds[key].discount > 0) {
                 this.serviceSelecteds[key].total = this.serviceSelecteds[key].price - (this.serviceSelecteds[key].price * parseFloat('0.'+discount)) + this.serviceSelecteds[key].additionalTotal
@@ -1059,6 +1069,7 @@ export default {
             this.calculatedTotal()
         },
         addDiscountTableProduct(record, key){
+            console.log("addDiscountTableProduct")
             var discount = record < 10 ? '0'+record : record
             if (this.serviceSelecteds[key].discount > 0) {
                 this.serviceSelecteds[key].total = (this.serviceSelecteds[key].price * this.serviceSelecteds[key].quantityProduct) - ((this.serviceSelecteds[key].price * this.serviceSelecteds[key].quantityProduct) * parseFloat('0.'+discount))
@@ -1068,6 +1079,7 @@ export default {
             this.calculatedTotal()
         },
         async chooseProduct(value){
+            console.log("chooseProduct")
             if (value) {
                 try {
                     const product = await axios.get(`${endPoint.endpointTarget}/products/${value}`, this.configHeader)
