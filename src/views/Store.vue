@@ -88,6 +88,9 @@
                                   </span>
                                     
                                 </template>
+                                <template slot="consume" slot-scope="record, column">
+                                    {{column.consume.toFixed(2)}}
+                                </template>
                                 <template slot="price" slot-scope="record">
                                     {{record | formatPrice}}
                                 </template>

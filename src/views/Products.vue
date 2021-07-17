@@ -95,6 +95,18 @@
                                 <template slot="Administrar" slot-scope="record, column">
                                     <a-tooltip placement="top">
                                         <template slot="title">
+                                        <span>Registrar merma</span>
+                                        </template>
+                                        <base-button size="sm" @click="modals.modal4 = true, productToAdd = column, productId = column._id" type="danger" icon="fas fa-trash"></base-button>
+                                    </a-tooltip>
+                                    <a-tooltip placement="top">
+                                        <template slot="title">
+                                        <span>Descontar productos</span>
+                                        </template>
+                                        <base-button size="sm" @click="modals.modal3 = true, productToAdd = column, productId = column._id" type="warning" icon="fa fa-minus"></base-button>
+                                    </a-tooltip>
+                                    <a-tooltip placement="top">
+                                        <template slot="title">
                                         <span>Anexar productos</span>
                                         </template>
                                         <base-button size="sm" @click="modals.modal2 = true, productToAdd = column, productId = column._id" type="success" icon="fa fa-plus"></base-button>
@@ -109,7 +121,7 @@
                                         <template slot="title">
                                         <span>Eliminar</span>
                                         </template>
-                                            <base-button size="sm" v-on:click="deleteProduct(column._id)" type="warning" icon="fas fa-trash"></base-button>
+                                            <base-button size="sm" v-on:click="deleteProduct(column._id)" type="warning" icon="fa fa-times"></base-button>
                                     </a-tooltip>
                                 </template>
                             </a-table>
@@ -327,7 +339,7 @@
                 </base-button>
             </template>
         </a-modal>
-        <a-modal v-model="modals.modal2" width="300px" title="Anexar productos" :closable="true" >
+        <a-modal v-model="modals.modal2" width="300px" :title="'Anexar producción a '+productToAdd.product" :closable="true" >
             <template>
                 <base-input  alternative
                     placeholder="Cantidad producida"
@@ -341,6 +353,40 @@
                 <base-button @click="addProduction" :disabled="productionQuantity != '' && productionQuantity > 0 ? false : true" size="sm" type="success">
                     <a-icon type="form" class="mr-2" style="vertical-align:1px;font-size:1.2em;" />
                     Agregar
+                </base-button>
+            </template>
+        </a-modal>
+        <a-modal v-model="modals.modal3" width="300px" :title="'Descontar producción a '+productToAdd.product" :closable="true" >
+            <template>
+                <base-input  alternative
+                    placeholder="Cantidad a reducir"
+                    class="mt-2"
+                    v-model="productionQuantity"
+                    addon-left-icon="ni ni-basket"
+                    addon-right-icon="fa fa-asterisk text-danger">
+                </base-input>
+            </template>
+            <template slot="footer">
+                <base-button @click="discountProduction" :disabled="productionQuantity != '' && productionQuantity > 0 ? false : true" size="sm" type="success">
+                    <a-icon type="form" class="mr-2" style="vertical-align:1px;font-size:1.2em;" />
+                    Descontar
+                </base-button>
+            </template>
+        </a-modal>
+        <a-modal v-model="modals.modal4" width="300px" :title="'Registrar merma a '+productToAdd.product" :closable="true" >
+            <template>
+                <base-input  alternative
+                    placeholder="Cantidad de merma"
+                    class="mt-2"
+                    v-model="productionQuantity"
+                    addon-left-icon="ni ni-basket"
+                    addon-right-icon="fa fa-asterisk text-danger">
+                </base-input>
+            </template>
+            <template slot="footer">
+                <base-button @click="decreaseProduction" :disabled="productionQuantity != '' && productionQuantity > 0 ? false : true" size="sm" type="success">
+                    <a-icon type="form" class="mr-2" style="vertical-align:1px;font-size:1.2em;" />
+                    Registrar merma
                 </base-button>
             </template>
         </a-modal>
@@ -362,7 +408,9 @@ export default {
             },
             modals: {
                 modal1: false,
-                modal2: false
+                modal2: false,
+                modal3: false,
+                modal4: false
             },
             productData: {
                 product: '',
@@ -424,6 +472,29 @@ export default {
                     },
                     onFilter: (value, record) =>
                         record.product
+                        .toString()
+                        .toLowerCase()
+                        .includes(value.toLowerCase()),
+                    onFilterDropdownVisibleChange: visible => {
+                        if (visible) {
+                            setTimeout(() => {
+                                this.searchInput.focus();
+                            }, 0);
+                        }
+                    },
+                },
+                {
+                    title: 'Tipo',
+                    dataIndex: 'type',
+                    key: 'type',
+                    ellipsis: true,
+                    scopedSlots: {
+                        filterDropdown: 'filterDropdown',
+                        filterIcon: 'filterIcon',
+                        customRender: 'customRender',
+                    },
+                    onFilter: (value, record) =>
+                        record.type
                         .toString()
                         .toLowerCase()
                         .includes(value.toLowerCase()),
@@ -781,6 +852,54 @@ export default {
             }
             this.validRegisterVar = true
             $('.materialSelect .ant-select-selection__clear').click()
+        },
+        async decreaseProduction(){
+            try {
+                const addProd = await axios.post(`${endPoint.endpointTarget}/products/decreaseProduction/${this.productId}`, {
+                    quantity: this.productionQuantity,
+                    product: this.productToAdd
+                }, this.configHeader)
+                if (addProd.data.status == 'ok') {
+                    this.productionQuantity = ''
+                    this.$swal({
+                        icon: 'success',
+                        title: 'Merma registrada con éxito',
+                        showConfirmButton: false,
+                        timer: 1500
+                    })
+                    this.modals.modal4 = false
+                    this.productId = ''
+                    this.getProducts()
+                    this.getHistory()
+                    this.alertProducts()
+                }
+            }catch(err){
+                console.log(err)
+            } 
+        },
+        async discountProduction(){
+           try {
+                const addProd = await axios.post(`${endPoint.endpointTarget}/products/discountProduction/${this.productId}`, {
+                    quantity: this.productionQuantity,
+                    product: this.productToAdd
+                }, this.configHeader)
+                if (addProd.data.status == 'ok') {
+                    this.productionQuantity = ''
+                    this.$swal({
+                        icon: 'success',
+                        title: 'Producto descontado con éxito',
+                        showConfirmButton: false,
+                        timer: 1500
+                    })
+                    this.modals.modal3 = false
+                    this.productId = ''
+                    this.getProducts()
+                    this.getHistory()
+                    this.alertProducts()
+                }
+            }catch(err){
+                console.log(err)
+            } 
         },
         async addProduction(){
             try {
