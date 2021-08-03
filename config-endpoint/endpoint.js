@@ -5,7 +5,7 @@ const portClient = '3389'
 const endpointTarget = `http://${server}`
 const url = `http://localhost:8080`
 const imgEndpoint = `${endpointTarget}/static/users/`
-const database = 'puzzles-syswa'
+const database = 'egda-syswa'
 const endPoint = { 
     imgEndpoint: imgEndpoint, 
     portClient:portClient, 
