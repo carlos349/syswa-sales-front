@@ -72,11 +72,11 @@
                         </div>
                         <div class="col-md-4 mt-2">
                             <label for="date" style="margin-bottom:0px;"><b>Cliente</b></label><br>
-                            <span class="ml-1">{{dataSale.client.firstName}} {{dataSale.client.lastName}}</span>
+                            <span class="ml-1">{{dataSale.client.firstName}} {{dataSale.client.email}}</span>
                         </div>
                         <div class="col-md-4 mt-2">
-                            <label for="date" style="margin-bottom:0px;"><b>Correo cliente</b></label><br>
-                            <span class="ml-1">{{dataSale.client.email}}</span>
+                            <label for="date" style="margin-bottom:0px;"><b>Despacho</b></label><br>
+                            <span class="ml-1">{{dataSale.shipping | formatPrice}}</span>
                         </div>
                         <div class="col-md-4 mt-2">
                             <label for="date" style="margin-bottom:0px;"><b>Monto total</b></label><br>

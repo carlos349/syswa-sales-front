@@ -25,14 +25,14 @@
       </div>
     </div>
     <a-modal v-model="modals.modal1" class="modal-lg px-0 pb-0 modalProcess" size="lg" :footer="null" :closable="true" >
-      <card type="secondary" shadow
+      <!-- <card type="secondary" shadow
           header-classes="bg-white "
-          body-classes="pb-0 pt-1"
-          class="border-0">
+          body-classes="pb-0 pt-0"
+          class="border-0"> -->
         <template>
             <procesar></procesar>
         </template>
-      </card>
+      <!-- </card> -->
     </a-modal>
   </div>
 </template>

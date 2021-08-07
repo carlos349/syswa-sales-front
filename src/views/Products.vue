@@ -9,8 +9,12 @@
                     <div class="text-absolute">
                         <p class="mb-0 display-2 text-white">Productos</p>
                     </div>
+                    <base-button @click="modals.modal5 = true" class="float-right mt-7 mr-2" size="sm" type="warning">
+                        <a-icon type="folder-open" class="mr-2" style="vertical-align:1.5px;font-size:1.4em;" />
+                        Cerrar
+                    </base-button>
                     <base-button @click="modals.modal1 = true, initialState(), typeModal = 'Registrar'" class="float-right mt-7 mr-2" size="sm" type="success">
-                        <a-icon type="form" class="mr-2" style="vertical-align:1px;font-size:1.2em;" />
+                        <a-icon type="form" class="mr-2" style="vertical-align:1px;font-size:1.4em;" />
                         Registrar
                     </base-button>
                 </div>
@@ -199,6 +203,70 @@
                                 </template>
                             </a-table>
                         </a-config-provider>
+                    </template>
+                </tab-pane>
+                <tab-pane>
+                    <span class="p-2" slot="title">
+                        <a-icon type="folder-open" style="font-size:1.5em;vertical-align:3px;" />
+                        Historial de cierres
+                    </span>
+                    <template>
+                        <a-config-provider>
+                            <template #renderEmpty>
+                                <div style="text-align: center">
+                                    <a-icon type="warning" style="font-size: 20px" />
+                                    <h2>No hay ningun registro de cierre</h2>
+                                </div>
+                            </template>
+                            <a-table :columns="columnsHistoryClosed" :data-source="dataHistoryClosed" :scroll="getScreen">
+                                <div
+                                slot="filterDropdown"
+                                slot-scope="{ setSelectedKeys, selectedKeys, confirm, clearFilters, column }"
+                                style="padding: 8px"
+                                >
+                                <a-input
+                                    v-ant-ref="c => (searchInput = c)"
+                                    :placeholder="`Buscar por ${column.title.toLowerCase()}`"
+                                    :value="selectedKeys[0]"
+                                    style="width: 188px; margin-bottom: 8px; display: block;"
+                                    @change="e => setSelectedKeys(e.target.value ? [e.target.value] : [])"
+                                    @pressEnter="() => handleSearch(selectedKeys, confirm, column.dataIndex)"
+                                />
+                                <a-button
+                                    type="primary"
+                                    icon="search"
+                                    size="small"
+                                    style="width: 90px; margin-right: 8px"
+                                    @click="() => handleSearch(selectedKeys, confirm, column.dataIndex)"
+                                >
+                                    Buscar
+                                </a-button>
+                                <a-button size="small" style="width: 90px" @click="() => handleReset(clearFilters)">
+                                    Restablecer
+                                </a-button>
+                                </div>
+                                <a-icon
+                                    slot="filterIcon"
+                                    slot-scope="filtered"
+                                    type="search"
+                                    :style="{ color: filtered ? '#108ee9' : undefined }"
+                                />
+                                <template slot="date" slot-scope="record">
+                                    {{record | formatDate}}
+                                </template>
+                                <template slot="user" slot-scope="record">
+                                    {{record.email}}
+                                </template>
+                                <template slot="report" slot-scope="record, column">
+                                    <a-tooltip placement="top">
+                                        <template slot="title">
+                                            <span>Ver informe</span>
+                                        </template>
+                                        <base-button size="sm" type="default" @click="modals.modal6 = true, dataHistoryClosedReport = column.products" icon="ni ni-bullet-list-67"></base-button>
+                                    </a-tooltip>
+                                </template>
+                            </a-table>
+                        </a-config-provider>  
                     </template>
                 </tab-pane>
             </card>
@@ -390,6 +458,31 @@
                 </base-button>
             </template>
         </a-modal>
+        <a-modal v-model="modals.modal5" width="60%" title="Registrar cierre de productos" :closable="true" >
+            <template>
+                <a-table :columns="columnsByClose" :data-source="products" :pagination="false" :scroll="getScreen">
+                    <template slot="totalClose-format" slot-scope="record, column">
+                        {{column.quantity - column.consume}}
+                    </template>
+                    <template slot="real-format" slot-scope="record, column">
+                        <a-input placeholder="Total real" type="number" v-model="column.realTotal"/>
+                    </template>
+                </a-table>
+            </template>
+            <template slot="footer">
+                <base-button @click="closeProducts" size="sm" type="success">
+                    <a-icon type="form" class="mr-2" style="vertical-align:1px;font-size:1.2em;" />
+                    Registrar cierre
+                </base-button>
+            </template>
+        </a-modal>
+        <a-modal v-model="modals.modal6" width="60%" :footer="false" title="Informe de cierre" :closable="true" >
+            <template>
+                <a-table :columns="columnsHistoryClosedReport" :data-source="dataHistoryClosedReport" :pagination="false" :scroll="getScreen">
+                    
+                </a-table>
+            </template>
+        </a-modal>
     </div>
 </template>
 <script>
@@ -410,7 +503,9 @@ export default {
                 modal1: false,
                 modal2: false,
                 modal3: false,
-                modal4: false
+                modal4: false,
+                modal5: false,
+                modal6: false
             },
             productData: {
                 product: '',
@@ -419,6 +514,7 @@ export default {
                 rawMaterial: [],
                 id: ''
             },
+            dataHistoryClosed: [],
             productionQuantity: '',
             materialSelect: {
                 measure: 'Medida',
@@ -428,6 +524,7 @@ export default {
                 id: '',
                 index: 0
             },
+            dataHistoryClosedReport: [],
             productId: '',
             productState: true,
             rawMaterials: [],
@@ -436,6 +533,122 @@ export default {
             searchedColumn: '',
             productToAdd: new Object,
             rawMaterialsSelectds: [],
+            columnsHistoryClosedReport: [
+                {
+                    title: 'Producto',
+                    dataIndex: 'product',
+                    key: 'product',
+                    ellipsis: true,
+                    sorter: (a, b) => {
+                        if (a.product > b.product) {
+                            return -1;
+                        }
+                        if (b.product > a.product) {
+                            return 1;
+                        }
+                        return 0;
+                    },
+                    sortDirections: ['descend', 'ascend'],
+                    scopedSlots: {
+                        filterDropdown: 'filterDropdown',
+                        filterIcon: 'filterIcon',
+                        customRender: 'product',
+                    },
+                    onFilter: (value, record) => record.product.toString().toLowerCase().includes(value.toLowerCase()),
+                    onFilterDropdownVisibleChange: visible => {
+                        if (visible) {
+                            setTimeout(() => {
+                                this.searchInput.focus();
+                            }, 0);
+                        }
+                    },
+                },
+                {
+                    title: 'Cantidad',
+                    dataIndex: 'quantity',
+                    key: 'quantity',
+                    ellipsis: true
+                },
+                {
+                    title: 'Consumo',
+                    dataIndex: 'consume',
+                    key: 'consume',
+                    ellipsis: true
+                },
+                {
+                    title: 'Total real',
+                    dataIndex: 'realTotal',
+                    key: 'realTotal',
+                    ellipsis: true
+                },
+                {
+                    title: 'Diferencia',
+                    dataIndex: 'difference',
+                    key: 'difference',
+                    ellipsis: true
+                },
+            ],
+            columnsHistoryClosed: [
+                {
+                    title: 'Fecha',
+                    dataIndex: 'createdAt',
+                    key: 'createdAt',
+                    ellipsis: true,
+                    defaultSortOrder: 'descend',
+                    sorter: (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+                    scopedSlots: {
+                        customRender: 'date',
+                    },
+                },
+                {
+                    title: 'Encargado del cierre',
+                    dataIndex: 'user',
+                    key: 'user',
+                    ellipsis: true,
+                    sorter: (a, b) => {
+                        if (a.user > b.user) {
+                            return -1;
+                        }
+                        if (b.user > a.user) {
+                            return 1;
+                        }
+                        return 0;
+                    },
+                    sortDirections: ['descend', 'ascend'],
+                    scopedSlots: {
+                        filterDropdown: 'filterDropdown',
+                        filterIcon: 'filterIcon',
+                        customRender: 'user',
+                    },
+                    onFilter: (value, record) => record.user.toString().toLowerCase().includes(value.toLowerCase()),
+                    onFilterDropdownVisibleChange: visible => {
+                        if (visible) {
+                            setTimeout(() => {
+                                this.searchInput.focus();
+                            }, 0);
+                        }
+                    },
+                },
+                {
+                    title: 'Productos totales',
+                    dataIndex: 'totalProduct',
+                    key: 'totalProduct',
+                    ellipsis: true
+                },
+                {
+                    title: 'Informe',
+                    dataIndex: '_id',
+                    scopedSlots: {
+                        customRender: 'report',
+                    },
+                    key: '_id',
+                    ellipsis: true
+                },
+            ],
+            firstNameUser: '',
+            lastNameUser: '',
+            emailUser: '',
+            idUser: '',
             columnsHistory: [
                 {
                     title: 'Fecha',
@@ -554,6 +767,35 @@ export default {
                     scopedSlots: { customRender: 'Administrar' },
                 }
             ],
+            columnsByClose: [
+                {
+                    title: 'Producto',
+                    dataIndex: 'product',
+                    key: 'product'
+                },
+                {
+                    title: 'Cantidad',
+                    dataIndex: 'quantity',
+                    key: 'quantity'
+                },
+                {
+                    title: 'Consumo',
+                    dataIndex: 'consume',
+                    key: 'consume'
+                },
+                {
+                    title: 'Total',
+                    dataIndex: '_id',
+                    key: '_id',
+                    scopedSlots: { customRender: 'totalClose-format' },
+                },
+                {
+                    title: 'Total real',
+                    dataIndex: 'realTotal',
+                    key: 'realTotal',
+                    scopedSlots: { customRender: 'real-format' },
+                },
+            ],
             columns: [
                 {
                     title: 'Producto',
@@ -619,9 +861,11 @@ export default {
         }
     },
     created(){
+        this.getUserData()
         this.getProducts()
         this.getRawMaterial()
         this.getHistory()
+        this.getHistoryClosed()
         $('.productsTable').click()
     },
     methods: {
@@ -633,11 +877,20 @@ export default {
             this.materialSelect.index = index
             this.materialSelect.promedyPrice = material.promedyPrice
         },
+        getUserData(){
+            this.firstNameUser = localStorage.firstname  
+            this.lastNameUser = localStorage.lastname
+            this.emailUser = localStorage.email
+            this.idUser = localStorage._id
+        },
         async getProducts(){
             this.productState = true
             const getProducts = await axios.get(`${endPoint.endpointTarget}/products`, this.configHeader)
             if (getProducts.data.status == 'ok') {
                 this.products = getProducts.data.data
+                for (const product of this.products) {
+                    product.realTotal = ''
+                }
                 this.productState = false
             }else{
                 this.products = []
@@ -701,6 +954,62 @@ export default {
                 this.materialSelect.id = ''
                 this.materialSelect.index = 0
                 this.validRegister()
+            }
+        },
+        closeProducts(){
+            console.log(this.products)
+            var valid = true
+            for (const product of this.products) {
+                if (product.realTotal == '') {
+                    valid = false
+                    break
+                }
+            }
+            if (valid) {
+                axios.post(endPoint.endpointTarget+'/sales/closeProducts', {
+                    firstNameUser: this.firstNameUser,
+                    lastNameUser: this.lastNameUser,
+                    emailUser: this.emailUser,
+                    idUser: this.idUser,
+                    products: this.products
+                }, this.configHeader)
+                .then(res => {
+                    if (res.data.status === 'ok') {
+                        this.$swal({
+                            type: 'success',
+                            icon: 'success',
+                            title: 'Cierre realizado con exito',
+                            showConfirmButton: false,
+                            timer: 1500
+                        })
+                        this.getProducts();
+                        this.getHistoryClosed()
+                        this.modals.modal5 = false
+                    }
+                    else{
+                        this.$swal({
+                            type: 'error',
+                            title: 'Ya se hizo un cierre este mes',
+                            showConfirmButton: false,
+                            timer: 1500
+                        })
+                    }
+                }).catch(err => {
+                    this.$swal({
+                        type: 'error',
+                        title: 'Problemas tecnicos intente de nuevo',
+                        showConfirmButton: false,
+                        timer: 1500
+                    })
+                })
+            }else{
+                this.$swal({
+                    type: 'error',
+                    icon: 'error',
+                    title: 'Por favor llene todos los campos',
+                    showConfirmButton: false,
+                    timer: 1500
+                })
             }
         },
         removeProduct(index){
@@ -809,6 +1118,26 @@ export default {
                     })
                 }
             }catch(err){
+                console.log(err)
+            }
+        },
+        async getHistoryClosed() {
+            try{
+                const getHistoryClosed = await axios.get(endPoint.endpointTarget+'/sales/getHistoryClosed', this.configHeader)
+                console.log(getHistoryClosed)
+                if (getHistoryClosed.data.status == 'ok') {
+                    this.dataHistoryClosed = getHistoryClosed.data.data
+                }else{
+                    this.dataHistoryClosed = []
+                }
+            }catch(err){
+                this.$swal({
+                    type: 'error',
+                    icon: 'error',
+                    title: 'Problemas con el servidor',
+                    showConfirmButton: false,
+                    timer: 1500
+                })
                 console.log(err)
             }
         },
@@ -955,6 +1284,11 @@ export default {
                     })
                 }
             })
+        }
+    },
+    computed: {
+        getScreen: () => {
+            return screen.width < 780 ? { x: 'calc(700px + 50%)', y: 240 } : { y: 240 }
         }
     }
 }

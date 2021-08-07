@@ -3,7 +3,7 @@
         <div class="row spin-content">
             <div class="col-md-8 mb-3 separatorLeft">
                 <div class="row p-0">
-                    <div class="col-md-6">
+                    <div class="col-md-6 pl-4">
                         <label for="Client">Cliente</label><br>
                         <a-select
                             show-search
@@ -139,7 +139,7 @@
                 <h3>Métodos de pago</h3>
                 <div class="row">
                     <template v-if="typesPay.length > 0">
-                        <div class="col-md-6 mt-2" v-for="(pay, index) in typesPay" :key="pay.type">
+                        <div class="col-md-6 mt-1" v-for="(pay, index) in typesPay" :key="pay.type">
                             <a-button :disabled="serviceSelecteds.length > 0 ? false : true" @click="selectPay(index)" class="w-100" type="primary" :ghost="pay.click">
                                 <a-icon class="ml-2" type="plus-square" style="vertical-align: 1.5px;" />
                                 {{pay.type}}
@@ -147,6 +147,16 @@
                         </div>
                     </template>
                 </div>
+                <!-- <label for="order" class="mt-2"><b>Total envío</b></label> -->
+                <h3 class="mt-1">Despacho</h3>
+                <currency-input
+                    :disabled="serviceSelecteds.length > 0 ? false : true"
+                    v-on:keyup="addShippingPrice"
+                    v-model="shipping"
+                    locale="de"
+                    class="ant-input w-100 mb-2"
+                />
+                <hr class="mt-1 mb-1">
                 <label for="type" class="mt-2"><b>Tipo</b></label>
                 <a-input class="w-100 mb-2" placeholder="Método de pago" :disabled="serviceSelecteds.length > 0 ? false : true" v-model="payment.type">
                     <a-icon slot="preffix" type="credit-card" style="vertical-align: 1.5px;" />
@@ -156,12 +166,12 @@
                     :disabled="serviceSelecteds.length > 0 ? false : true"
                     v-model="payment.total"
                     locale="de"
-                    class="ant-input w-100 mb-3"
+                    class="ant-input w-100 mb-2"
                 />
                 <a-button @click="addPayment()" :disabled="serviceSelecteds.length > 0 ? false : true" type="primary" class="float-right w-50">
                     Agregar pago
                 </a-button>
-                <hr class="mt-5 mb-2">
+                
                 <a-config-provider>
                     <template #renderEmpty>
                         <div style="text-align: center">
@@ -169,7 +179,7 @@
                             <h2>No ha ingresado métodos de pago</h2>
                         </div>
                     </template>
-                    <a-list bordered :data-source="paysSelecteds">
+                    <a-list class="mt-5" bordered :data-source="paysSelecteds">
                         <a-list-item slot="renderItem" slot-scope="item, index">
                             {{item.type}}: {{ item.total | formatPrice }} 
                             <a-button style="margin-top:-6px;" @click="removePay(index)" type="danger" class="float-right">
@@ -178,11 +188,11 @@
                         </a-list-item>
                     </a-list>
                 </a-config-provider>
-                <hr class="mt-2 mb-2">
+                <hr class="mt-2 mb-1">
                 <h3>Pagado: {{totalPay | formatPrice}}</h3>
                 <h3>Total: {{totalSale | formatPrice}}</h3>
                 <p><b>Por pagar: </b>{{showPerPay(perPay) | formatPrice}} | <b>Vuelto: {{restPay | formatPrice}}</b></p>
-                <a-button @click="proccessSale" style="margin-top:-6px;" :disabled="serviceSelecteds.length > 0 ? false : true" :loading="ifProccess" type="primary" class="float-right">
+                <a-button @click="proccessSale" style="margin-top:-10px;" :disabled="serviceSelecteds.length > 0 ? false : true" :loading="ifProccess" type="primary" class="float-right">
                     Procesar
                     <a-icon type="shopping" style="vertical-align: 1.5px;"/>
                 </a-button>
@@ -476,6 +486,7 @@ export default {
                 icon: '',
                 type:''
             },
+            shipping: 0,
             priceService: 0,
             priceServiceReal: 0,
             discountService: '',
@@ -946,13 +957,16 @@ export default {
                 })
             }
         },
+        addShippingPrice(){
+            this.calculatedTotal()
+        },
         calculatedTotal(){
             console.log("calculatedTotal")
             var total = 0
             for (const items of this.serviceSelecteds) {
                 total = total + items.total
             }
-            this.totalSale = total
+            this.totalSale = total + parseFloat(this.shipping == '' ? 0 : this.shipping )
             this.perPay = this.totalSale - this.totalPay
             this.restPay = this.perPay < 0 ? Math.abs(this.perPay) : 0
         },
@@ -1148,7 +1162,8 @@ export default {
                         client: this.registerClient,
                         clientId: this.editClientId,
                         date: this.dateToday,
-                        restPay: this.restPay
+                        restPay: this.restPay,
+                        shipping: this.shipping
                     }, this.configHeader)
                     if (proccesSale.data.status == 'ok') {
                         this.$swal({
@@ -1541,7 +1556,7 @@ export default {
 .ubicateDate{
     position: fixed;
     top: 0%;
-    left: 390px;
+    left: 400px;
     z-index: 100;
     width: 48%;
 }
