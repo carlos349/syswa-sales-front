@@ -63,7 +63,7 @@ import 'vue-phone-number-input/dist/vue-phone-number-input.css';
 
 /* Currency input */
 Vue.config.productionTip = false
-const pluginOptions = {globalOptions: { currency: {'prefix':'$ '}, precision: 0, distractionFree: false, autoDecimalMode:false}}
+const pluginOptions = {globalOptions: { currency: {'prefix':'$ '}, precision: 2, distractionFree: false, autoDecimalMode:false}}
 const options = {
   name: '_blank',
   specs: [
