@@ -123,6 +123,9 @@
                         <template slot="type-slot" slot-scope="record, column">
                             {{column.quantityProduct}}
                         </template>
+                        <template slot="discount-slot" slot-scope="record, column">
+                            {{column.discount}}%
+                        </template>
                     </a-table>
                 </template>
             </div>
@@ -451,15 +454,22 @@ export default {
                     title: 'Precio',
                     dataIndex: 'price',
                     key: 'price',
-                    width: '25%',
+                    width: '20%',
                     scopedSlots: { customRender: 'price-slot' }
                 },
                 {
                     title: 'Cantidad',
                     dataIndex: 'type',
                     key: 'type',
-                    width: '25%',
+                    width: '15%',
                     scopedSlots: { customRender: 'type-slot' }
+                },
+                {
+                    title: 'Descuento',
+                    dataIndex: 'discount',
+                    key: 'discount',
+                    width: '15%',
+                    scopedSlots: { customRender: 'discount-slot' }
                 },
                 {
                     title: 'Total',

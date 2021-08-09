@@ -1152,7 +1152,9 @@ export default {
         },
         async proccessSale(){
             this.ifProccess = true
-            if (this.perPay <= 0) {
+            console.log(this.perPay)
+            console.log(this.totalSale.toFixed(1) - this.totalPay.toFixed(1))
+            if (this.totalSale.toFixed(1) - this.totalPay.toFixed(1) <= 0) {
                 try{
                     const proccesSale = await axios.post(`${endPoint.endpointTarget}/sales/process`, {
                         items: this.serviceSelecteds,
