@@ -75,7 +75,7 @@
                                 />
                                 <template slot="total" slot-scope="record,column">
                                   <span class="text-danger" v-if="(parseFloat(column.quantity) + parseFloat(column.entry)) - parseFloat(column.consume) < column.alertTotal">
-                                    {{(parseFloat(column.quantity) + parseFloat(column.entry)) - parseFloat(column.consume)}}
+                                    {{((parseFloat(column.quantity) + parseFloat(column.entry)) - parseFloat(column.consume)).toFixed(2)}}
                                     <a-tooltip placement="topLeft">
                                         <template slot="title">
                                             <span>Este producto necesita ser reabastecido.</span>
@@ -84,7 +84,7 @@
                                     </a-tooltip>
                                   </span>
                                   <span v-else>
-                                    {{(parseFloat(column.quantity) + parseFloat(column.entry)) - parseFloat(column.consume)}}
+                                    {{((parseFloat(column.quantity) + parseFloat(column.entry)) - parseFloat(column.consume)).toFixed(2)}}
                                   </span>
                                     
                                 </template>
@@ -523,6 +523,10 @@
                 <template slot="total-slot" slot-scope="record, column, index">
                     <a-input placeholder="Peso real" type="number" @keyup="calculatedTotal(column.real, index)" v-model="column.real"/>
                 </template>
+                <template slot="consume-slot" slot-scope="record">
+                    {{record.toFixed(2)}}
+                </template>
+                
             </a-table>
         </template>
         <template slot="footer">
@@ -601,6 +605,27 @@
                             type="search"
                             :style="{ color: filtered ? '#108ee9' : undefined }"
                         />
+                        <template slot="ideal-slot" slot-scope="record">
+                            {{record.toFixed(2)}}
+                        </template>
+                        <template slot="real-slot" slot-scope="record">
+                            {{parseFloat(record).toFixed(2)}}
+                        </template>
+                        <template slot="buy-slot" slot-scope="record">
+                            {{record.toFixed(2)}}
+                        </template>
+                        <template slot="real-slot" slot-scope="record">
+                            {{parseFloat(record).toFixed(2)}}
+                        </template>
+                        <template slot="buy-slot" slot-scope="record">
+                            {{record.toFixed(2)}}
+                        </template>
+                        <template slot="perExpense-slot" slot-scope="record, column">
+                            {{column.totalBuy > 0 ? parseFloat(column.totalBuy) * column.promedyPrice : 0 | formatPrice}}
+                        </template>
+                        <template slot="stock-slot" slot-scope="record, column">
+                            {{parseFloat(column.real) * column.promedyPrice | formatPrice}}
+                        </template>
                     </a-table>
                 </a-config-provider>    
             </div>
@@ -804,7 +829,8 @@ export default {
             {
                 title: 'Consume del mes',
                 dataIndex: 'consume',
-                key: 'consume'
+                key: 'consume',
+                scopedSlots: { customRender: 'consume-slot' },
             },
             {
                 title: 'Meta',
@@ -1234,13 +1260,15 @@ export default {
                 title: 'Total ideal',
                 dataIndex: 'ideal',
                 key: 'ideal',
-                ellipsis: true
+                ellipsis: true,
+                scopedSlots: { customRender: 'ideal-slot' }
             },
             {
                 title: 'Total real',
                 dataIndex: 'real',
                 key: 'real',
-                ellipsis: true
+                ellipsis: true,
+                scopedSlots: { customRender: 'real-slot' }
             },
             {
                 title: 'Diferencia',
@@ -1258,8 +1286,23 @@ export default {
                 title: 'Por comprar',
                 dataIndex: 'totalBuy',
                 key: 'totalBuy',
-                ellipsis: true
+                ellipsis: true,
+                scopedSlots: { customRender: 'buy-slot' }
             },
+            {
+                title: 'Por gastar',
+                dataIndex: '_id',
+                key: '_id',
+                ellipsis: true,
+                scopedSlots: { customRender: 'perExpense-slot' }
+            },
+            {
+                title: 'Stock',
+                dataIndex: 'createdAt',
+                key: 'createdAt',
+                ellipsis: true,
+                scopedSlots: { customRender: 'stock-slot' }
+            }
         ],
         firstNameUser: '',
         lastNameUser: '',
