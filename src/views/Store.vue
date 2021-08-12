@@ -318,11 +318,12 @@
                                               <template slot="title">
                                                 <span>Ver informe</span>
                                               </template>
-                                              <base-button size="sm" type="default" @click="modals.modal5 = true ,validForm = 2, dataHistoryClosedReport = column.products" icon="ni ni-bullet-list-67"></base-button>
+                                              <base-button size="sm" type="default" @click="modals.modal5 = true ,validForm = 2, dataHistoryClosedReport = column.products, sumTotals(column.products)" icon="ni ni-bullet-list-67"></base-button>
                                             </a-tooltip>
                                           </template>
                                       </a-table>
-                                  </a-config-provider>    
+                                    </a-config-provider> 
+                                     
                               </div>
                           </template>
                         </tab-pane>
@@ -627,7 +628,10 @@
                             {{parseFloat(column.real) * column.promedyPrice | formatPrice}}
                         </template>
                     </a-table>
-                </a-config-provider>    
+                </a-config-provider>   
+                <p>
+                    <b>Total por gastar</b> {{totalPerExpense | formatPrice}} | <b>Total en stock</b> {{totalStock | formatPrice}}
+                </p>   
             </div>
         </template>
     </modal>
@@ -1312,7 +1316,9 @@ export default {
         dataHistoryClosedReport: [],
         dataHistory: [],
         branchName: '',
-        branch: ''
+        branch: '',
+        totalPerExpense: 0,
+        totalStock: 0
       };
     },
     created(){
@@ -1334,6 +1340,14 @@ export default {
         calculatedTotal(record, index){
             if (record.length > 0) {
                 this.productsToClose[index].totalBuy = parseFloat(this.productsToClose[index].goal) - parseFloat(this.productsToClose[index].real)
+            }
+        },
+        sumTotals(products){
+            for (const product of products) {
+                const totalBuy = product.totalBuy > 0 ? parseFloat(product.totalBuy) : 0
+                this.totalPerExpense = this.totalPerExpense + (totalBuy * product.promedyPrice)
+                
+                this.totalStock = (this.totalStock + (parseFloat(product.real) * product.promedyPrice))
             }
         },
         async getProducts() {
