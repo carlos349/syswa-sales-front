@@ -479,15 +479,37 @@ export default {
                     scopedSlots: { customRender: 'total-slot' }
                 },
             ],
+            searchText: '',
+            searchInput: null,
+            searchedColumn: '',
             columns: [
                 {
                     title: 'Fecha',
                     dataIndex: 'createdAt',
                     key: 'createdAt',
-                    scopedSlots: { customRender: 'date-format' },
-                    defaultSortOrder: 'descend',
-                    sorter: (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
-                    ellipsis: true,
+                    sorter: (a, b) => {
+                        if (a.createdAt > b.createdAt) {
+                            return -1;
+                        }
+                        if (b.createdAt > a.createdAt) {
+                            return 1;
+                        }
+                        return 0;
+                    },
+                    sortDirections: ['descend', 'ascend'],
+                    scopedSlots: {
+                        filterDropdown: 'filterDropdown',
+                        filterIcon: 'filterIcon',
+                        customRender: 'date-format',
+                    },
+                    onFilter: (value, record) => record.createdAt.toString().toLowerCase().includes(value.toLowerCase()),
+                    onFilterDropdownVisibleChange: visible => {
+                        if (visible) {
+                            setTimeout(() => {
+                                this.searchInput.focus();
+                            }, 0);
+                        }
+                    },
                 },
                 {
                     title: 'Cliente',
@@ -554,6 +576,15 @@ export default {
             }else{
                 this.dateFind = []
             }
+        },
+        handleSearch(selectedKeys, confirm, dataIndex) {
+            confirm();
+            this.searchText = selectedKeys[0];
+            this.searchedColumn = dataIndex;
+        },
+        handleReset(clearFilters) {
+            clearFilters();
+            this.searchText = '';
         },
         selectDateExcel(date, dateString){
             console.log(date, dateString)

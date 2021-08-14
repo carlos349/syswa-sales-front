@@ -984,6 +984,7 @@ export default {
                         })
                         this.getProducts();
                         this.getHistoryClosed()
+                        EventBus.$emit('reloadProducts', 'reload')
                         this.modals.modal5 = false
                     }
                     else{
@@ -1102,6 +1103,7 @@ export default {
                         showConfirmButton: false,
                         timer: 1500
                     })
+                    EventBus.$emit('reloadProducts', 'reload')
                     this.productData.product = ''
                     this.productData.quantityProduction = ''
                     this.productData.price = 0
@@ -1201,6 +1203,7 @@ export default {
                     this.getProducts()
                     this.getHistory()
                     this.alertProducts()
+                    EventBus.$emit('reloadProducts', 'reload')
                 }
             }catch(err){
                 console.log(err)
@@ -1225,6 +1228,7 @@ export default {
                     this.getProducts()
                     this.getHistory()
                     this.alertProducts()
+                    EventBus.$emit('reloadProducts', 'reload')
                 }
             }catch(err){
                 console.log(err)
@@ -1249,6 +1253,7 @@ export default {
                     this.getProducts()
                     this.getHistory()
                     this.alertProducts()
+                    EventBus.$emit('reloadProducts', 'reload')
                 }
             }catch(err){
                 console.log(err)

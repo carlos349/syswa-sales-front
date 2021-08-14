@@ -35,8 +35,9 @@
                         <input readonly class="ant-input w-100" placeholder="Telefono" v-model="registerClient.phone.formatInternational"/>
                     </div>
                 </div>
-                <a-date-picker class="ubicateDate"  @change="selectDate" :default-value="moment(new Date(), dateFormat)" :format="dateFormat" />
-                <div class="card-container" style="margin-top:-30px;">
+                <!-- <a-date-picker class="ubicateDate"  @change="selectDate" :default-value="moment(new Date(), dateFormat)" :format="dateFormat" /> -->
+                <!-- style="margin-top:-30px;" -->
+                <div class="card-container" >
                     <a-tabs type="card">
                         <a-tab-pane key="1">
                             <span slot="tab">
@@ -1006,31 +1007,40 @@ export default {
             this.payment.total = this.perPay
         },
         addPayment(){
-            for (const pay of this.typesPay) {
-                pay.click = true
-            }
-            var valid = true
-            for (const pay of this.paysSelecteds) {
-                if (pay.type == this.payment.type) {
-                    pay.total = pay.total + this.payment.total
-                    valid = false
-                    break
+            if (this.payment.total > 0 && this.payment.type != '') {
+                for (const pay of this.typesPay) {
+                    pay.click = true
                 }
-            }
-            if (valid) {
-                this.paysSelecteds.push({
-                    type: this.payment.type,
-                    total: this.payment.total
+                var valid = true
+                for (const pay of this.paysSelecteds) {
+                    if (pay.type == this.payment.type) {
+                        pay.total = pay.total + this.payment.total
+                        valid = false
+                        break
+                    }
+                }
+                if (valid) {
+                    this.paysSelecteds.push({
+                        type: this.payment.type,
+                        total: this.payment.total
+                    })
+                }
+                var total = 0
+                for (const pay of this.paysSelecteds) {
+                    total = total + pay.total
+                }
+                this.totalPay = total
+                this.calculatedTotal()
+                this.payment.type = ''
+                this.payment.total = 0
+            }else{
+                this.$swal({
+                    icon: 'info',
+                    title: 'Debe llenar los datos de pago',
+                    showConfirmButton: false,
+                    timer: 1000
                 })
             }
-            var total = 0
-            for (const pay of this.paysSelecteds) {
-                total = total + pay.total
-            }
-            this.totalPay = total
-            this.calculatedTotal()
-            this.payment.type = ''
-            this.payment.total = 0
         },
         removePay(key){
             this.totalPay = this.totalPay - this.paysSelecteds[key].total
@@ -1174,6 +1184,7 @@ export default {
                             showConfirmButton: false,
                             timer: 1000
                         })
+                        EventBus.$emit('reloadSales', 'reload')
                         this.initialState()
                         this.ifProccess = false
                     }else{
@@ -1261,6 +1272,7 @@ export default {
                 commission: 0,
                 tag: ''
             }
+            this.shipping = 0
             this.serviceSelecteds = []
             this.totalSale = 0
             this.paysSelecteds = []
