@@ -328,7 +328,7 @@
                                               <template slot="title">
                                                 <span>Ver informe</span>
                                               </template>
-                                              <base-button size="sm" type="default" @click="modals.modal5 = true ,validForm = 2, dataHistoryClosedReport = column.products, idReport = column._id,  sumTotals(column.products)" icon="ni ni-bullet-list-67"></base-button>
+                                              <base-button size="sm" type="default" @click="modals.modal5 = true ,validForm = 2, dataHistoryClosedReport = column.products, idReport = column.createdAt,  sumTotals(column.products)" icon="ni ni-bullet-list-67"></base-button>
                                             </a-tooltip>
                                           </template>
                                       </a-table>
@@ -749,6 +749,7 @@ import { Empty } from 'ant-design-vue';
 import flatPicker from "vue-flatpickr-component";
 import "flatpickr/dist/flatpickr.css";
 import {Spanish} from 'flatpickr/dist/l10n/es.js';
+import XLSX from 'xlsx'
 // COMPONENTS
 
 import mixinUserToken from '../mixins/mixinUserToken'
@@ -1872,10 +1873,29 @@ export default {
             }
         },
         printHistory(){
-            let params = `scrollbars=no,resizable=no,status=no,location=no,toolbar=no,menubar=no,
-width=0,height=0,left=-1000,top=-1000`;
-            var win = window.open(endPoint.url+'/#/pdfReportHistory?id='+this.idReport, '_blank', params)
-            win.focus();
+            var dataArray = []
+            for (const product of this.dataHistoryClosedReport) {
+                dataArray.push({
+                    Producto: product.product,
+                    Medida: product.measure,
+                    "Total ideal": product.ideal,
+                    "Total real": product.real,
+                    Diferencia: product.difference,
+                    Meta: product.goal,
+                    "Por comprar": product.totalBuy,
+                    "Por gastar": product.totalBuy > 0 ? parseFloat(product.totalBuy) * product.promedyPrice : 0,
+                    Stock: parseFloat(product.real) * product.promedyPrice
+                })
+            }
+            var Datos = XLSX.utils.json_to_sheet(dataArray) 
+            var wb = XLSX.utils.book_new() 
+            XLSX.utils.book_append_sheet(wb, Datos, 'Datos') 
+            XLSX.writeFile(wb, 'Cierre '+this.$options.filters.formatDate(this.idReport)+'.xlsx') 
+
+//             let params = `scrollbars=no,resizable=no,status=no,location=no,toolbar=no,menubar=no,
+// width=0,height=0,left=-1000,top=-1000`;
+//             var win = window.open(endPoint.url+'/#/pdfReportHistory?id='+this.idReport, '_blank', params)
+//             win.focus();
         },
         formatDate(date) {
             let dateFormat = new Date(date)
