@@ -9,6 +9,9 @@
                 <div class="text-absolute">
                     <p class="mb-0 display-2 text-white">Inventario</p>
                 </div>
+                <base-button class="float-right mt-7 ml-2" title="Generar excel" size="sm" type="primary"> 
+                    <a-icon type="file-excel" style="vertical-align:1.5px;font-size:1.2em;" />
+                </base-button>
                 <base-button class="float-right mt-7 mr-0" size="sm" @click="modals.modal4 = true" type="warning">
                     <i class="fa fa-archive mr-2" style="vertical-align:1px;font-size:1.2em;"></i>
                     Cerrar
@@ -75,7 +78,7 @@
                                 />
                                 <template slot="total" slot-scope="record,column">
                                   <span class="text-danger" v-if="(parseFloat(column.quantity) + parseFloat(column.entry)) - parseFloat(column.consume) < column.alertTotal">
-                                    {{((parseFloat(column.quantity) + parseFloat(column.entry)) - parseFloat(column.consume)).toFixed(2)}}
+                                    {{((parseFloat(column.quantity) + parseFloat(column.entry)) - parseFloat(column.consume)) | formatNumber}}
                                     <a-tooltip placement="topLeft">
                                         <template slot="title">
                                             <span>Este producto necesita ser reabastecido.</span>
@@ -84,12 +87,15 @@
                                     </a-tooltip>
                                   </span>
                                   <span v-else>
-                                    {{((parseFloat(column.quantity) + parseFloat(column.entry)) - parseFloat(column.consume)).toFixed(2)}}
+                                    {{((parseFloat(column.quantity) + parseFloat(column.entry)) - parseFloat(column.consume)) | formatNumber}}
                                   </span>
                                     
                                 </template>
                                 <template slot="consume" slot-scope="record, column">
-                                    {{column.consume.toFixed(2)}}
+                                    {{column.consume | formatNumber}}
+                                </template>
+                                <template slot="quantity" slot-scope="record, column">
+                                    {{column.quantity | formatNumber}}
                                 </template>
                                 <template slot="price" slot-scope="record">
                                     {{record | formatPrice}}
@@ -250,6 +256,9 @@
                                           />
                                           <template slot="date" slot-scope="record">
                                               {{record | formatDate}}
+                                          </template>
+                                          <template slot="anexe" slot-scope="record">
+                                              {{record | formatNumber}}
                                           </template>
                                           <template slot="price" slot-scope="record">
                                               {{record | formatPrice}}
@@ -519,10 +528,10 @@
         <template>
             <a-table :columns="columnsByClose" :data-source="productsToClose" :pagination="false" :scroll="getScreen">
                 <template slot="goal-slot" slot-scope="record, column, index" index>
-                    <a-input placeholder="Meta a consumir" type="number" @keyup="calculatedTotal(column.goal, index)" v-model="column.goal"/>
+                    <a-input placeholder="Meta a consumir" @wheel="$event.target.blur()" type="number" @keyup="calculatedTotal(column.goal, index)" v-model="column.goal"/>
                 </template>
                 <template slot="total-slot" slot-scope="record, column, index">
-                    <a-input placeholder="Peso real" type="number" @keyup="calculatedTotal(column.real, index)" v-model="column.real"/>
+                    <a-input placeholder="Peso real" @wheel="$event.target.blur()" type="number" @keyup="calculatedTotal(column.real, index)" v-model="column.real"/>
                 </template>
                 <template slot="consume-slot" slot-scope="record">
                     {{record.toFixed(2)}}
@@ -1102,7 +1111,8 @@ export default {
                 title: 'Anexado',
                 dataIndex: 'entry',
                 key: 'entry',
-                ellipsis: true
+                ellipsis: true,
+                scopedSlots: { customRender: 'anexe' },
             },
             {
                 title: 'Medida',
@@ -2034,9 +2044,11 @@ export default {
             })
         },
         closeStore(){
-            console.log(this.productsToClose)
+            // console.log(this.productsToClose)
             var valid = true
             for (const product of this.productsToClose) {
+                product.goal = product.goal != '' || product.goal.includes('.' || ',') ? parseFloat(product.goal.replace('.' || ',', '')) : ''
+                product.real = product.real != '' || product.goal.includes('.' || ',') ? parseFloat(product.real.replace('.' || ',', '')) : ''
                 if (product.goal == '' || product.real == '') {
                     valid = false
                     break

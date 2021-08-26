@@ -465,7 +465,7 @@
                         {{column.quantity - column.consume}}
                     </template>
                     <template slot="real-format" slot-scope="record, column">
-                        <a-input placeholder="Total real" type="number" v-model="column.realTotal"/>
+                        <a-input placeholder="Total real" @wheel="$event.target.blur()" type="number" v-model="column.realTotal"/>
                     </template>
                 </a-table>
             </template>
