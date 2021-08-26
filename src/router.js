@@ -3,6 +3,7 @@ import Router from 'vue-router'
 import DashboardLayout from '@/layout/DashboardLayout'
 import AuthLayout from '@/layout/AuthLayout'
 import reportPdf from '@/views/reportPdf'
+import historyPdf from '@/views/historyPdf'
 Vue.use(Router)
 
 export default new Router({
@@ -17,6 +18,18 @@ export default new Router({
           path: '/reportPdf',
           name: '',
           component: () => import('./views/reportPdf.vue')
+        }
+      ] 
+    },
+    {
+      path: '/pdfReportHistory',
+      redirect: 'historyPdf',
+      component: historyPdf,
+      children: [
+        {
+          path: '/historyPdf',
+          name: '',
+          component: () => import('./views/historyPdf.vue')
         }
       ] 
     },

@@ -8,6 +8,7 @@
             <div class="col-12">
                 <div class="text-absolute">
                     <p class="mb-0 display-2 text-white">Inventario</p>
+                    <p class="text-white font-weight-bolder">CLP STOCK - {{totalStockActual | formatPrice}}</p>
                 </div>
                 <base-button class="float-right mt-7 ml-2" title="Generar excel" size="sm" type="primary"> 
                     <a-icon type="file-excel" style="vertical-align:1.5px;font-size:1.2em;" />
@@ -327,7 +328,7 @@
                                               <template slot="title">
                                                 <span>Ver informe</span>
                                               </template>
-                                              <base-button size="sm" type="default" @click="modals.modal5 = true ,validForm = 2, dataHistoryClosedReport = column.products, sumTotals(column.products)" icon="ni ni-bullet-list-67"></base-button>
+                                              <base-button size="sm" type="default" @click="modals.modal5 = true ,validForm = 2, dataHistoryClosedReport = column.products, idReport = column._id,  sumTotals(column.products)" icon="ni ni-bullet-list-67"></base-button>
                                             </a-tooltip>
                                           </template>
                                       </a-table>
@@ -643,6 +644,7 @@
                 </p>   
             </div>
         </template>
+        <base-button type="default" size="sm" class="float-right" @click="printHistory">Imprimir reporte</base-button>
     </modal>
     <modal modal-classes="modal-dialog-centered modal-xl" :show.sync="modalAdminProduct.modal1">
         <h6 slot="header" class="modal-title" id="modal-title-default">Gestion de sucursales</h6>
@@ -778,6 +780,7 @@ export default {
           typeProvider:'',
         }, 
         loadData: false,
+        idReport: '',
         history:[],
         provider:{
           name: 'Seleccione un proveedor',
@@ -1328,7 +1331,8 @@ export default {
         branchName: '',
         branch: '',
         totalPerExpense: 0,
-        totalStock: 0
+        totalStock: 0,
+        totalStockActual: 0
       };
     },
     created(){
@@ -1353,6 +1357,8 @@ export default {
             }
         },
         sumTotals(products){
+            this.totalPerExpense = 0
+            this.totalStock = 0
             for (const product of products) {
                 const totalBuy = product.totalBuy > 0 ? parseFloat(product.totalBuy) : 0
                 this.totalPerExpense = this.totalPerExpense + (totalBuy * product.promedyPrice)
@@ -1362,6 +1368,7 @@ export default {
         },
         async getProducts() {
             this.countProduct = []
+            this.totalStockActual = 0
             try{
                 const getAllProducts = await axios.get(endPoint.endpointTarget+'/stores/getstore', this.configHeader)
                 if (getAllProducts.data.status == 'ok') {
@@ -1378,6 +1385,7 @@ export default {
                     for (let index = 0; index < this.products.length; index++) {
                         var ideal = (this.products[index].quantity + this.products[index].entry) - this.products[index].consume
                         this.countProduct.push({id: this.products[index]._id,count: '', ideal: ideal, measure: this.products[index].measure, product: this.products[index].product, difference: ''})
+                        this.totalStockActual = this.totalStockActual + (((this.products[index].quantity + this.products[index].entry) - this.products[index].consume) * this.products[index].promedyPrice)
                     } 
                     this.productState = false
                 }else{
@@ -1862,6 +1870,12 @@ export default {
             }
             this.unit = ''
             }
+        },
+        printHistory(){
+            let params = `scrollbars=no,resizable=no,status=no,location=no,toolbar=no,menubar=no,
+width=0,height=0,left=-1000,top=-1000`;
+            var win = window.open(endPoint.url+'/#/pdfReportHistory?id='+this.idReport, '_blank', params)
+            win.focus();
         },
         formatDate(date) {
             let dateFormat = new Date(date)
