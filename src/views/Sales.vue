@@ -345,7 +345,7 @@
                     {{column.client.firstName}} {{column.client.lastName}}
                 </template>
                 <template slot="date-format" slot-scope="record, column">
-                    {{column.createdAt | formatDate}}
+                    {{column.createdAt | formatDateHour}}
                 </template>
                 <template slot="localGain" slot-scope="record, column">
                     {{column.localGain | formatPrice}}
@@ -497,6 +497,7 @@ export default {
                         return 0;
                     },
                     sortDirections: ['descend', 'ascend'],
+                    defaultSortOrder: 'ascend',
                     scopedSlots: {
                         filterDropdown: 'filterDropdown',
                         filterIcon: 'filterIcon',
