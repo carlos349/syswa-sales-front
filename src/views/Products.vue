@@ -1150,11 +1150,16 @@ export default {
         },
         pushData(id, product, quantityProduction, price, rawMaterial){
             this.initialState()
+            this.totalRecipe = 0
             this.productData.product = product
             this.productData.quantityProduction = quantityProduction
             this.productData.price = price
             this.productData.rawMaterial = rawMaterial
             this.productData.id = id
+            for (const rawMateriall of this.productData.rawMaterial) {
+                console.log(rawMateriall)
+                this.totalRecipe = this.totalRecipe + ((rawMateriall.promedyPrice * parseFloat(rawMateriall.quantity)) / quantityProduction)
+            }
             this.modals.modal1 = true
             this.typeModal = "Editar"
             for (const material of this.rawMaterials) {

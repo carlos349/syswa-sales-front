@@ -79,6 +79,11 @@ export default new Router({
           component: () => import('./views/Products.vue')
         },
         {
+          path: '/Sucursales',
+          name: '',
+          component: () => import('./views/Branch.vue')
+        },
+        {
           path: '/Caja',
           name: '',
           component: () => import('./views/Box.vue')

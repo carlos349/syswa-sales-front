@@ -125,10 +125,10 @@
                             <i class="ni ni-single-02"></i>
                             <span>Mi perfil</span>
                         </router-link>
-                        <!-- <router-link to="/profile" class="dropdown-item">
-                            <i class="ni ni-calendar-grid-58"></i>
-                            <span>Actividad</span>
-                        </router-link> -->
+                        <router-link to="/Sucursales" class="dropdown-item">
+                            <i class="ni ni-shop"></i>
+                            <span>Sucursales</span>
+                        </router-link>
                         <!-- <router-link to="/profile" class="dropdown-item">
                             <i class="ni ni-support-16"></i>
                             <span>Soporte</span>
