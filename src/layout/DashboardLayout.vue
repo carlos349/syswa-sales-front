@@ -10,6 +10,7 @@
         <sidebar-item v-if="validRoute('clientes')" :link="{name: 'Clientes', icon: 'ni ni-circle-08 text-default', path: '/Clientes'}"/>
         <sidebar-item v-if="validRoute('inventario')" :link="{name: 'Productos', icon: 'ni ni-box-2 text-orange', path: '/Productos'}"/>
         <sidebar-item v-if="validRoute('bodega')" :link="{name: 'Inventario', icon: 'ni ni-box-2 text-orange', path: '/Inventario'}"/>
+        <sidebar-item :link="{name: 'Citas', icon: 'ni ni-calendar-grid-58 text-blue', path: '/Citas'}"/>
         <sidebar-item v-if="validRoute('caja')" :link="{name: 'Caja', icon: 'ni ni-archive-2 text-green', path: '/Caja'}"/>
       </template>
     </side-bar>

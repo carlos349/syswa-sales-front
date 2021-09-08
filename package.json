@@ -30,7 +30,7 @@
     "vue": "^2.6.11",
     "vue-apexcharts": "^1.5.2",
     "vue-bootstrap4-table": "^1.1.11",
-    "vue-cal": "^3.6.6",
+    "vue-cal": "^3.10.1",
     "vue-carousel": "^0.18.0",
     "vue-chartjs": "3.4.2",
     "vue-clipboard2": "0.3.0",

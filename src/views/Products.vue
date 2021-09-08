@@ -397,6 +397,8 @@
                 </div>
             </template>
             <template slot="footer">
+                <p class="float-left"><b> 
+                    Costo: {{totalRecipe | formatPrice}}</b></p>
                 <base-button v-if="typeModal == 'Registrar'" @click="registerProduct" :disabled="validRegisterVar" size="sm" type="success">
                     <a-icon type="form" class="mr-2" style="vertical-align:1px;font-size:1.2em;" />
                     Registrar
@@ -857,7 +859,8 @@ export default {
             ],
             validRegisterVar: true,
             historyProduction: [],
-            typeModal: ''
+            typeModal: '',
+            totalRecipe: 0
         }
     },
     created(){
@@ -946,6 +949,7 @@ export default {
                     id: this.materialSelect.id,
                     index: this.materialSelect.index
                 })
+                this.totalRecipe = this.totalRecipe + ((this.materialSelect.promedyPrice * this.materialSelect.quantity) / this.productData.quantityProduction)
                 $('.materialSelect .ant-select-selection__clear').click()
                 this.materialSelect.measure = 'Medida'
                 this.materialSelect.product = ''
@@ -1014,6 +1018,7 @@ export default {
             }
         },
         removeProduct(index){
+            this.totalRecipe = this.totalRecipe - ((this.productData.rawMaterial[index].promedyPrice * parseFloat(this.productData.rawMaterial[index].quantity)) / this.productData.quantityProduction)
             this.rawMaterials[this.productData.rawMaterial[index].index].disabled = false
             this.productData.rawMaterial.splice(index, 1)
         },

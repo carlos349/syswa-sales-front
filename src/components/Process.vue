@@ -1173,7 +1173,7 @@ export default {
                         typesPay: this.paysSelecteds,
                         client: this.registerClient,
                         clientId: this.editClientId,
-                        date: this.dateToday,
+                        date: new Date(),
                         restPay: this.restPay,
                         shipping: this.shipping
                     }, this.configHeader)

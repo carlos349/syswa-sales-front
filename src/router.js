@@ -54,6 +54,11 @@ export default new Router({
           component: () => import('./views/Store.vue')
         },
         {
+          path: '/Citas',
+          name: '',
+          component: () => import('./views/Dates.vue')
+        },
+        {
           path: '/Usuarios',
           name: '',
           component: () => import('./views/Users.vue')
