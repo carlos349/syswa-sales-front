@@ -35,6 +35,18 @@
                     </template>
                     <template>
                         <form role="form">
+                            <a-select
+                                allowClear
+                                placeholder="Seleccione sucursal"
+                                option-filter-prop="children"
+                                style="width: 100%;height: 43px;"
+                                class="input-group-alternative branchSelectClass"
+                                size="large"
+                                @change="handleChange">
+                                <a-select-option v-for="branch of branches" :key="branch._id" :value="branch._id">
+                                    {{branch.name}}
+                                </a-select-option>
+                            </a-select>
                             <a-input 
                             v-model="registerUser.name"
                             placeholder="Nombre"
@@ -569,6 +581,7 @@ export default {
             type:''
         },
         users: [],
+        branches:[],
         columns: [
             {
                 title: 'Nombre',
@@ -761,12 +774,14 @@ export default {
         accessProfiles: [],
         idProfile: '',
         profileSelect: '',
-        routesSelect: []
+        routesSelect: [],
+        branchSelect: ''
       };
     },
     created(){
 		this.getUsers();
         this.getToken()
+        this.getBranches()
     },
     methods: {
         getToken(){
@@ -793,6 +808,24 @@ export default {
             this.$refs.file.value = ''
             console.log(this.$refs.file.files)
         },
+        async getBranches() {
+            try {
+                const getBranches = await axios.get(endPoint.endpointTarget+'/branches', this.configHeader)
+                if (getBranches.data.status == 'ok') {
+                    this.branches = getBranches.data.data
+                }
+            }catch(err){
+                this.$swal({
+					icon: 'error',
+					title: 'Problemas de conexión',
+					showConfirmButton: false,
+					timer: 2500
+				})
+            }
+        },
+        handleChange(value){
+            this.branchSelect = value
+        },
         validRoute(route, type){
             for (let index = 0; index < this.auth.length; index++) {
                 const element = this.auth[index];
@@ -811,7 +844,8 @@ export default {
                 first_name: this.registerUser.name,
                 last_name: this.registerUser.lastname,
                 email: this.registerUser.email,
-                password: this.registerUser.password
+                password: this.registerUser.password,
+                branch: this.branchSelect
             }, this.configHeader)
             .then(res => {
                 if (res.data.status == 'ok') {
@@ -822,6 +856,8 @@ export default {
                         timer: 1500
                     })
                     this.modals.modal1 = false
+                    $('.branchSelectClass .ant-select-selection__clear').click()
+                    this.branchSelect = ''
                     this.initialState(1)
                     this.ifRegister = false
                     this.getUsers()

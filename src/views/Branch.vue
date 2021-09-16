@@ -11,7 +11,7 @@
                         <p class="mb-0 display-2 text-white">Sucursales</p>
                         <p class="text-white hideText">Esta es la sección administrativa de tus sucursales, aquí podrás registrar, editar y visualizar todas tus sucursales.</p>
                     </div>
-                    <base-button :disabled="validRoute('sucursales', 'registrar') ? false : true" class="float-right mt-7" size="sm" type="success" style="font-size:1em;" @click="modals.modal1 = true" ><a-icon type="form" class="mr-2" style="vertical-align:1px;font-size:1.2em;" /> Registrar</base-button>
+                    <base-button class="float-right mt-7" size="sm" type="success" style="font-size:1em;" @click="modals.modal1 = true" ><a-icon type="form" class="mr-2" style="vertical-align:1px;font-size:1.2em;" /> Registrar</base-button>
                 </div>
             </div>
             
@@ -77,28 +77,21 @@
                         </template>
                     </template>
                     <template slot="actionButtons" class="mx-auto" slot-scope="record, column">
-                        <router-link v-if="validRoute('sucursales', 'configurar')" :to="{ path: '/configuration', query: { id: column._id }}">
-                            <base-button :disabled="validRoute('sucursales', 'configurar') ? false : true" class="text-center" icon="ni ni-settings-gear-65" size="sm" type="default" >
+                        <router-link :to="{ path: '/configuration', query: { id: column._id }}">
+                            <base-button class="text-center" icon="ni ni-settings-gear-65" size="sm" type="default" >
                                 Configurar
                             </base-button> 
                         </router-link>
-                        <base-button v-else disabled class="text-center" icon="ni ni-settings-gear-65" size="sm" type="default" >
-                            Configurar
-                        </base-button>
                         <a-tooltip class="ml-2" placement="top">
                             <template slot="title">
                             <span>Activar / Desactivar</span>
                             </template>
-                            <template v-if="validRoute('servicios', 'activaciones')">
+                            <template>
                                 <base-button class="text-center" v-if="column.active" icon="ni ni-check-bold" size="sm" type="success" v-on:click="changeStatus(column._id, true)"></base-button>
                                 <base-button class="text-center" v-else size="sm" type="danger" v-on:click="changeStatus(column._id, false)">
                                     <a-icon type="close" style="vertical-align:1px;" />
                                 </base-button> 
                     
-                            </template>
-                            <template v-else>
-                                <base-button class="text-center" v-if="column.active" icon="ni ni-check-bold" size="sm" type="success" disabled></base-button>
-                                <base-button class="text-center" v-else icon="ni ni-fat-remove" size="sm" type="danger" disabled></base-button> 
                             </template>
                         </a-tooltip> 
                 </template>
@@ -209,14 +202,11 @@
                                             :filter-option="filterOption"
                                             @change="handleChange"
                                         >
-                                        <a-select-option value="nails">
-                                            Spa de uñas
+                                        <a-select-option value="distribuidor">
+                                            Distribuidor
                                         </a-select-option>
-                                        <a-select-option value="barber">
-                                            Barberia
-                                        </a-select-option>
-                                        <a-select-option value="stylish">
-                                            Peluquería
+                                        <a-select-option value="Vendedor">
+                                            Vendedor
                                         </a-select-option>
                                     </a-select>
                                 </div>

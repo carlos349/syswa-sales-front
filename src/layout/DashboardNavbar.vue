@@ -15,7 +15,7 @@
         
         <ul class="navbar-nav align-items-center  ml-md-auto ">
           <li class="nav-item">
-            <a-dropdown :disabled="validRoute('sucursales', 'cambiar') ? false : true">
+            <a-dropdown>
               <a-menu slot="overlay" @click="selectBranch">
                 <template v-for="branch of branches">
                   <a-menu-item class="font-weight-bold" :key="branch._id+'/'+branch.name" v-if="branch.active"> 
