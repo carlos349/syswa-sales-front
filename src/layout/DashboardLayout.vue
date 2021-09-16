@@ -8,8 +8,9 @@
         <sidebar-item v-if="validRoute('usuarios')" :link="{name: 'Usuarios', icon: 'ni ni-key-25 text-red', path: '/Usuarios'}"/>
         <sidebar-item v-if="validRoute('ventas')" :link="{name: 'Ventas', icon: 'ni ni-money-coins text-green', path: '/Ventas'}"/>
         <sidebar-item v-if="validRoute('clientes')" :link="{name: 'Clientes', icon: 'ni ni-circle-08 text-default', path: '/Clientes'}"/>
-        <sidebar-item v-if="validRoute('inventario')" :link="{name: 'Productos', icon: 'ni ni-box-2 text-orange', path: '/Productos'}"/>
-        <sidebar-item v-if="validRoute('bodega')" :link="{name: 'Inventario', icon: 'ni ni-box-2 text-orange', path: '/Inventario'}"/>
+        <sidebar-item v-if="validRoute('inventario')" :link="{name: 'Productos', icon: 'ni ni-shop text-orange', path: '/Productos'}"/>
+        <sidebar-item v-if="validRoute('inventario')" :link="{name: 'Inventario', icon: 'ni ni-basket text-green', path: '/Inventario'}"/>
+        <sidebar-item v-if="validRoute('bodega')" :link="{name: 'Bodega', icon: 'ni ni-box-2 text-orange', path: '/Bodega'}"/>
         <sidebar-item :link="{name: 'Citas', icon: 'ni ni-calendar-grid-58 text-blue', path: '/Citas'}"/>
         <sidebar-item v-if="validRoute('caja')" :link="{name: 'Caja', icon: 'ni ni-archive-2 text-green', path: '/Caja'}"/>
       </template>

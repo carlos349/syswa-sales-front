@@ -7,7 +7,7 @@
         <div class="row">
             <div class="col-12">
                 <div class="text-absolute">
-                    <p class="mb-0 display-2 text-white">Inventario</p>
+                    <p class="mb-0 display-2 text-white">Bodega</p>
                     <p class="text-white font-weight-bolder">CLP STOCK - {{totalStockActual | formatPrice}}</p>
                 </div>
                 <base-button class="float-right mt-7 ml-2" title="Generar excel" size="sm" type="primary"> 
@@ -103,6 +103,13 @@
                                 </template>
                                 <template slot="actions" slot-scope="record, column">
                                     <b>
+                                        <a-tooltip placement="top">
+                                            <template slot="title">
+                                            <span>Descontar productos</span>
+                                            </template>
+                                            <base-button  title="Descontar" size="sm" type="danger" @click="modals.modal7 = true, discountProduct = '', productToDiscount = column.product, productDiscountId = column._id, productMeasure = column.measure, productPromedy = column.promedyPrice, initialState(1, column._id)" icon="fa fa-minus"></base-button>
+                                        </a-tooltip>
+
                                         <a-tooltip placement="top">
                                             <template slot="title">
                                             <span>Anexar productos</span>
@@ -737,6 +744,23 @@
             </base-button>
         </template>
     </modal>
+    <a-modal v-model="modals.modal7" width="300px" :title="'Descontar a '+productToDiscount" :closable="true" >
+        <template>
+            <base-input  alternative
+                placeholder="Cantidad a reducir"
+                class="mt-2"
+                v-model="discountProduct"
+                addon-left-icon="ni ni-basket"
+                addon-right-icon="fa fa-asterisk text-danger">
+            </base-input>
+        </template>
+        <template slot="footer">
+            <base-button @click="discountProduction" :disabled="discountProduct != '' && discountProduct > 0 ? false : true" size="sm" type="success">
+                <a-icon type="form" class="mr-2" style="vertical-align:1px;font-size:1.2em;" />
+                Descontar
+            </base-button>
+        </template>
+    </a-modal>
   </div>
 </template>
 <script>
@@ -776,6 +800,11 @@ export default {
         productsForBranch:[],
         productForBranch:'',
         productState: true,
+        discountProduct: '',
+        productToDiscount: '',
+        productDiscountId: '',
+        productMeasure: '',
+        productPromedy: 0,
         providerSup:{
           validProvider:false,
           typeProvider:'',
@@ -811,6 +840,7 @@ export default {
           modal4: false,
           modal5: false,
           modal6: false,
+          modal7: false
         },
         modalAdminProduct: {
           modal1: false,
@@ -954,7 +984,8 @@ export default {
                 title: 'Acciones',
                 dataIndex: 'action',
                 key: 'action',
-                scopedSlots: { customRender: 'actions' }
+                scopedSlots: { customRender: 'actions' },
+                width: '15%'
             }
         ],
         columnsProviders: [
@@ -1392,6 +1423,45 @@ export default {
                 }else{
                     this.products = []
                     this.productState = false
+                }
+            }catch(err){
+                this.$swal({
+                    type: 'error',
+                    icon: 'error',
+                    title: 'Problemas con el servidor',
+                    showConfirmButton: false,
+                    timer: 1500
+                })
+                console.log(err)
+            }
+        },
+        async discountProduction(){
+            try{
+                const updateProduct = await axios.put(endPoint.endpointTarget+'/stores/discountProductStore/'+this.productDiscountId, {
+                    quantity: this.discountProduct,
+                    firstNameUser: localStorage.firstname,
+                    lastNameUser: localStorage.lastname,
+                    emailUser: localStorage.email,
+                    product: this.productToDiscount,
+                    measure: this.productMeasure,
+                    productPromedy: this.productPromedy
+                }, this.configHeader)
+                if (updateProduct.data.status == 'ok') {
+                    this.$swal({
+                        type: 'success',
+                        icon: 'success',
+                        title: 'Descuento hecho con éxito',
+                        showConfirmButton: false,
+                        timer: 1500
+                    })
+                    this.discountProduct = ''
+                    this.productToDiscount = ''
+                    this.productDiscountId = ''
+                    this.productMeasure = ''
+                    this.productPromedy = 0
+                    this.modals.modal7 = false
+                    this.getProducts()
+                    this.getHistory()
                 }
             }catch(err){
                 this.$swal({

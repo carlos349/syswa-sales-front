@@ -49,7 +49,7 @@ export default new Router({
           component: () => import('./views/reportClosure.vue')
         },
         {
-          path: '/Inventario',
+          path: '/Bodega',
           name: '',
           component: () => import('./views/Store.vue')
         },
@@ -74,14 +74,19 @@ export default new Router({
           component: () => import('./views/Clients.vue')
         },
         {
-          path: '/Productos',
+          path: '/Inventario',
           name: '',
-          component: () => import('./views/Products.vue')
+          component: () => import('./views/Inventory.vue')
         },
         {
           path: '/Sucursales',
           name: '',
           component: () => import('./views/Branch.vue')
+        },
+        {
+          path: '/Productos',
+          name: '',
+          component: () => import('./views/Products.vue')
         },
         {
           path: '/Caja',

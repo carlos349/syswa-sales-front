@@ -14,6 +14,18 @@
         </form> -->
         
         <ul class="navbar-nav align-items-center  ml-md-auto ">
+          <li class="nav-item">
+            <a-dropdown :disabled="validRoute('sucursales', 'cambiar') ? false : true">
+              <a-menu slot="overlay" @click="selectBranch">
+                <template v-for="branch of branches">
+                  <a-menu-item class="font-weight-bold" :key="branch._id+'/'+branch.name" v-if="branch.active"> 
+                    <a-icon type="shop" style="vertical-align:1px;" />{{branch.name}} 
+                  </a-menu-item>
+                </template>
+              </a-menu>
+              <a-button class="mb-2 bg-default text-white font-weight-bold w-100" style="border:none;" > {{branchName}} <a-icon type="down" style="vertical-align:1px;" /> </a-button>
+            </a-dropdown>
+          </li>
           <li class="nav-item dropdown">
               <a v-on:click="validateNotifications()" class="nav-link" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 <i class="ni ni-bell-55" :class="pxSep" style="font-size:18px;z-index:1;"></i>
@@ -134,7 +146,7 @@
                             <span>Soporte</span>
                         </router-link> -->
                         <div class="dropdown-divider"></div>
-                        <router-link to="/login" class="dropdown-item">
+                        <router-link to="/login" class="dropdown-item">|
                             <i class="ni ni-user-run"></i>
                             <span>Cerrar sesión</span>
                         </router-link>
@@ -174,7 +186,10 @@
         count:0,
         all: true,
         pxSep: '',
-        auth: []
+        auth: [],
+        branches: [],
+        branchName: localStorage.branchName,
+        branch: localStorage.branch,
       };
     },
     beforeCreate() {
@@ -182,7 +197,7 @@
     },
     created() {
       // this.getNotifications()
-      this.getToken()
+      this.getBranches()
     },
     methods: {
       toggleSidebar() {
@@ -193,7 +208,16 @@
         if (token) {
           const decoded = jwtDecode(token)
           this.auth = decoded.access
-          console.log(this.auth)
+          this.branch = decoded.branch
+          console.log(this.branch)
+          for (const branch of this.branches) {
+            if (branch._id == this.branch) {
+              this.branchName = branch.name
+              localStorage.setItem('branch', this.branch)
+              localStorage.setItem('branchName', this.branchName)
+              break
+            }
+          }
         }
       },
       validRoute(route, type){
@@ -232,6 +256,17 @@
         this.showMenu = !this.showMenu;
         console.log('cerro')
       },
+      selectBranch(value){
+        if (value.key.split('/')[0] != this.branch) {
+          localStorage.setItem('branch', value.key.split('/')[0])
+          localStorage.setItem('branchName', value.key.split('/')[1])
+          this.branch = value.key.split('/')[0]
+          this.branchName = value.key.split('/')[1]
+          console.log(this.branch)
+          console.log(this.branchName)
+          EventBus.$emit('changeBranch', true)
+        }
+      },
       getNotifications(){
         axios.get(endPoint.endpointTarget+'/notifications/noViews/'+this.idUser) 
         .then(res => {
@@ -255,6 +290,22 @@
           this.all = true
         })
       },
+      async getBranches() {
+        const configHeader = {
+          headers: {
+              "x-database-connect": endPoint.database, 
+              "x-access-token": localStorage.userToken
+          }
+        }
+        try {
+          const getBranches = await axios.get(endPoint.endpointTarget+'/branches', configHeader)
+          if (getBranches.data.status == 'ok') {
+            this.branches = getBranches.data.data
+            console.log('aja')
+            this.getToken()
+          }
+        }catch(err){console.log(err)}
+      },
       momentTime(value) {
         const dateNoti = new Date(value)
         return moment(dateNoti, "YYYYMMDD").fromNow();
@@ -272,6 +323,9 @@
 
     },
     mounted() {
+      EventBus.$on('loggedin', status => {
+        this.getBranches()
+      })
       EventBus.$on('dataChange', status => {
         console.log(status)
         this.nombre = status.nombre + ' ' + status.apellido
@@ -279,6 +333,9 @@
           this.imgUser = status.image
         }
         console.log(this.imgUser)
+      })
+      EventBus.$on('newBranch', status => {
+        this.getBranches()
       })
       this.socket.on('notify', (data) => {
         this.notifications.push(data)

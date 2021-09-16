@@ -157,6 +157,10 @@
                     locale="de"
                     class="ant-input w-100 mb-2"
                 />
+                <h3 class="mt-1">Origen de venta</h3>
+                <a-input class="w-100 mb-2" placeholder="Origen" v-model="originSale">
+                    <a-icon slot="preffix" type="credit-card" style="vertical-align: 1.5px;" />
+                </a-input>
                 <hr class="mt-1 mb-1">
                 <label for="type" class="mt-2"><b>Tipo</b></label>
                 <a-input class="w-100 mb-2" placeholder="Método de pago" :disabled="serviceSelecteds.length > 0 ? false : true" v-model="payment.type">
@@ -497,6 +501,7 @@ export default {
                 type: '',
                 total: 0
             },
+            originSale: '',
             configHeader: {
                 headers: {
                     "x-database-connect": endPoint.database, 
@@ -676,7 +681,7 @@ export default {
             editClientId: '',
             ifrecomend: false,
             branchName: '',
-            branch: '',
+            branch: localStorage.branch,
             microservices: [],
             microSelect: {
                 name: '',
@@ -769,6 +774,10 @@ export default {
             }else{
                 this.cashFunds.valid = this.cashFunds.cashName != '' && this.cashFunds.cashAmount > 0 ? true : false
             }
+        },
+        getBranch(){
+            this.branch = localStorage.branch
+            this.getProducts()
         },
         registerFund(){
 			axios.post(endPoint.endpointTarget+'/sales/registerFund', {
@@ -875,7 +884,7 @@ export default {
         },
         async getProducts(){
             this.productState = true
-            const getProducts = await axios.get(`${endPoint.endpointTarget}/products`, this.configHeader)
+            const getProducts = await axios.get(`${endPoint.endpointTarget}/products/productsbranch/${this.branch}`, this.configHeader)
             if (getProducts.data.status == 'ok') {
                 this.products = getProducts.data.data
             }else{
@@ -1175,7 +1184,9 @@ export default {
                         clientId: this.editClientId,
                         date: new Date(),
                         restPay: this.restPay,
-                        shipping: this.shipping
+                        shipping: this.shipping,
+                        branch: this.branch,
+                        originSale: this.originSale
                     }, this.configHeader)
                     if (proccesSale.data.status == 'ok') {
                         this.$swal({

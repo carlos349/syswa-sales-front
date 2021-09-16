@@ -554,8 +554,8 @@ export default {
             clientNames: [],
             validLender: true,
             validClient: true,
-            branch: '',
-            branchName: '',
+            branch: localStorage.branch,
+            branchName: localStorage.branchName,
             dateFind: [],
             dateFindExcel: []
         }
@@ -569,6 +569,10 @@ export default {
             const token = localStorage.userToken
             const decoded = jwtDecode(token)  
             this.auth = decoded.access
+        },
+        getBranch(){
+            this.branch = localStorage.branch
+            this.getSales()
         },
         selectDate(date, dateString){
             console.log(date, dateString)
@@ -643,7 +647,7 @@ export default {
             $('.rangeInput .ant-calendar-picker-clear').click()
             this.dateFind = []
             try {
-                const sales = await axios.get(endPoint.endpointTarget+'/sales', this.configHeader)
+                const sales = await axios.get(endPoint.endpointTarget+'/sales/'+this.branch, this.configHeader)
                 if (sales.data.status == 'ok') {
                     this.sales = sales.data.data
                     this.progress = false
@@ -744,7 +748,8 @@ export default {
             }
             axios.post(endPoint.endpointTarget+'/sales/generateDataExcel', {
                 rangeExcel: this.dateFindExcel,  
-                clientSelect: this.clientSelect.split(' / ')[1] ? this.clientSelect.split(' / ')[1] : ''
+                clientSelect: this.clientSelect.split(' / ')[1] ? this.clientSelect.split(' / ')[1] : '',
+                branch: this.branch
             }, this.configHeader)
             .then(res => {
                 console.log(res)

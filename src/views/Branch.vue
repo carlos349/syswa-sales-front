@@ -1021,6 +1021,7 @@ export default {
                                         'email': this.modelStart.email,
                                         'typesPay': this.modelStart.typesPay,
                                         'currency': this.modelStart.currency,
+                                        'route': endPoint.url,
                                         'file': ''
                                     }, this.configHeader)
                                     if (registerConf.data.status == 'ok') {

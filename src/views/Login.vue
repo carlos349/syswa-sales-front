@@ -279,6 +279,7 @@ import 'vue-phone-number-input/dist/vue-phone-number-input.css';
                     localStorage.setItem('email', decoded.email)
                     localStorage.setItem('showNav', true)
                     localStorage.setItem('status', decoded.status)
+                    localStorage.setItem('branch', decoded.branch)
                     router.push({path: '/Ventas'})
                     this.emitMethod(decoded.status)
                 }
