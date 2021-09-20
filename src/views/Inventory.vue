@@ -531,6 +531,9 @@
                         <template slot="delete" class="mx-auto" slot-scope="record, column">
                             <base-button size="sm" class=" mr-0" type="danger" @click="deleteProductByBranch(column._id, column.idInventory, column.quantity)" icon="fa fa-trash"></base-button>
                         </template>
+                        <template slot="Total-slot" class="mx-auto" slot-scope="record, column">
+                            {{column.quantity - column.consume}}
+                        </template>
                         
                     </a-table>
                 </div>
@@ -617,7 +620,10 @@ export default {
                     dataIndex: 'quantity',
                     key: 'quantity',
                     ellipsis: true,
-                    width: '15%'
+                    width: '15%',
+                    scopedSlots: {
+                        customRender: 'Total-slot',
+                    },
                 },
                 {
                     title: 'Eliminar',
