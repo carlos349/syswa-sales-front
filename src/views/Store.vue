@@ -2151,8 +2151,8 @@ export default {
             console.log(this.productsToClose)
             var valid = true
             for (const product of this.productsToClose) {
-                product.goal = product.goal != '' || product.goal.includes('.' || ',') ? parseFloat(product.goal.replace('.' || ',', '')) : product.goal
-                product.real = product.real != '' || product.real.includes('.' || ',') ? parseFloat(product.real.replace('.' || ',', '')) : product.real
+                product.goal = parseFloat(product.goal)
+                product.real = parseFloat(product.real) 
                 if (product.goal == '' || product.real == '') {
                     valid = false
                     break
