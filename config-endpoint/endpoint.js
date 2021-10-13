@@ -1,5 +1,5 @@
 const serverL = 'localhost:3200'
-const server = '18.230.187.233:3200'
+const server = '15.228.52.139:3200'
 const serverQa = '15.228.60.51:3200'
 const portClient = '3389'
 const endpointTarget = `http://${server}`
